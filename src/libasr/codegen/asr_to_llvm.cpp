@@ -254,6 +254,8 @@ public:
 
     uint64_t ptr_loads;
 
+    llvm::AttrBuilder attr_builder;
+
     ASRToLLVMVisitor(Allocator &al, llvm::LLVMContext &context, Platform platform,
         diag::Diagnostics &diagnostics) :
     diag{diagnostics},
@@ -2272,6 +2274,8 @@ public:
                 }
             }
         }
+        llvm::Attribute attr = llvm::Attribute::get(context, "", "false");
+        F->addAttributes(0, attr_builder.addAttribute(attr));
     }
 
     llvm::FunctionType* get_subroutine_type(const ASR::Subroutine_t &x){
