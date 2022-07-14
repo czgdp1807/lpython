@@ -400,7 +400,7 @@ static inline bool is_intrinsic_optimization(const T *routine) {
     if (m != nullptr) {
         return (std::string(m->m_name).find("lfortran_intrinsic_optimization") != std::string::npos);
     }
-    return false;
+    return std::string(ASRUtils::symbol_name(sym)).find("@IntrinsicOptimization") != std::string::npos;
 }
 
 // Returns true if all arguments have a `value`

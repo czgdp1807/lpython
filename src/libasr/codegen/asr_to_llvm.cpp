@@ -2274,8 +2274,6 @@ public:
                 }
             }
         }
-        llvm::Attribute attr = llvm::Attribute::get(context, "", "false");
-        F->addAttributes(0, attr_builder.addAttribute(attr));
     }
 
     llvm::FunctionType* get_subroutine_type(const ASR::Subroutine_t &x){
@@ -4767,6 +4765,25 @@ public:
         tmp = builder->CreateBitCast(tmp, common_llvm_type);
     }
 
+    void generate_vector_copy(ASR::call_arg_t* m_args) {
+        this->visit_expr_wrapper(m_args[0].m_value, true);
+        llvm::Value* src = tmp;
+        this->visit_expr_wrapper(m_args[1].m_value, true);
+        llvm::Value* dest = tmp;
+        this->visit_expr_wrapper(m_args[2].m_value, true);
+        llvm::Value* start = tmp;
+        llvm::Value* src_data = builder->CreateLoad(arr_descr->get_pointer_to_data(src));
+        llvm::Value* dest_data = builder->CreateLoad(arr_descr->get_pointer_to_data(dest));
+        llvm::Value* begin = llvm_utils->create_ptr_gep(src_data, start);
+        llvm::Value* end = llvm_utils->create_ptr_gep(dest_data, start);
+        size_t vector_length;
+        ASRUtils::extract_value(m_args[5].m_value, vector_length);
+        llvm::Type* arr_type = llvm::ArrayType::get(src_data->getType()->getContainedType(0), vector_length)->getPointerTo();
+        llvm::Value* begin_static = builder->CreateBitCast(begin, arr_type);
+        llvm::Value* end_static = builder->CreateBitCast(end, arr_type);
+        builder->CreateStore(builder->CreateLoad(end_static), begin_static);
+    }
+
     template <typename T>
     bool generate_optimization_instructions(const T* routine, ASR::call_arg_t* m_args) {
         std::string routine_name = std::string(routine->m_name);
@@ -4778,6 +4795,9 @@ public:
             return true;
         } else if( routine_name.find("signfromvalue") != std::string::npos ) {
             generate_sign_from_value(m_args);
+            return true;
+        } else if( routine_name.find("vector_copy") != std::string::npos ) {
+            generate_vector_copy(m_args);
             return true;
         }
         return false;
