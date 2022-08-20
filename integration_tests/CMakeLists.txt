@@ -171,6 +171,7 @@ RUN(NAME elemental_01        LABELS cpython llvm)
 RUN(NAME elemental_02        LABELS cpython llvm)
 RUN(NAME elemental_03        LABELS cpython llvm)
 RUN(NAME elemental_04        LABELS cpython llvm)
+RUN(NAME elemental_05        LABELS cpython llvm)
 RUN(NAME test_random         LABELS cpython llvm)
 RUN(NAME test_os             LABELS cpython llvm)
 RUN(NAME test_builtin        LABELS cpython llvm)
@@ -189,17 +190,17 @@ RUN(NAME test_builtin_round  LABELS cpython llvm)
 RUN(NAME test_builtin_divmod LABELS cpython llvm)
 RUN(NAME test_math1          LABELS cpython llvm)
 RUN(NAME test_math_02        LABELS cpython llvm)
-RUN(NAME test_c_interop_01   LABELS cpython llvm c)
-RUN(NAME test_c_interop_02   LABELS cpython llvm c
-        EXTRAFILES test_c_interop_02b.c)
-RUN(NAME test_c_interop_03   LABELS cpython llvm c
-        EXTRAFILES test_c_interop_03b.c)
-RUN(NAME test_c_interop_04   LABELS cpython llvm c
-        EXTRAFILES test_c_interop_04b.c)
-RUN(NAME test_c_interop_05   LABELS llvm c
-        EXTRAFILES test_c_interop_05b.c)
-RUN(NAME bindc_03   LABELS llvm
-        EXTRAFILES bindc_03b.c)
+# RUN(NAME test_c_interop_01   LABELS cpython llvm c)
+# RUN(NAME test_c_interop_02   LABELS cpython llvm c
+#         EXTRAFILES test_c_interop_02b.c)
+# RUN(NAME test_c_interop_03   LABELS cpython llvm c
+#         EXTRAFILES test_c_interop_03b.c)
+# RUN(NAME test_c_interop_04   LABELS cpython llvm c
+#         EXTRAFILES test_c_interop_04b.c)
+# RUN(NAME test_c_interop_05   LABELS llvm c
+#         EXTRAFILES test_c_interop_05b.c)
+# RUN(NAME bindc_03   LABELS llvm
+#         EXTRAFILES bindc_03b.c)
 RUN(NAME test_generics_01    LABELS cpython llvm)
 RUN(NAME test_cmath          LABELS cpython llvm)
 RUN(NAME test_complex        LABELS cpython llvm)
