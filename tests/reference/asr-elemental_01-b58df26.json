@@ -6,11 +6,7 @@
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-elemental_01-b58df26.stdout",
-<<<<<<< HEAD
-    "stdout_hash": "371c67412744f45ebbacdd11d04266a89d1948752cb00750d7cc4592",
-=======
-    "stdout_hash": "e7132547fa66a616cc8bca0897d9cb1960a3face11f2293854dd16df",
->>>>>>> 6e3f27b1d (Execute 'python run_tests.py -u' to update reference tests)
+    "stdout_hash": "0e293919083ca79954a035d2c0973e7c7a649cc04272306d453c8756",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
