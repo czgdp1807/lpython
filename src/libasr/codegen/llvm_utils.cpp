@@ -1034,8 +1034,9 @@ namespace LFortran {
                           ASR::ttype_t* value_asr_type) {
         llvm::Value* capacity_ptr = get_pointer_to_capacity(dict);
         llvm::Value* old_capacity = LLVM::CreateLoad(*builder, capacity_ptr);
+
         llvm::Value* capacity = builder->CreateMul(old_capacity, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
-                                                                       llvm::APInt(32, 2)));
+                                                                       llvm::APInt(32, 3)));
         capacity = builder->CreateAdd(capacity, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
                                                                        llvm::APInt(32, 1)));
         LLVM::CreateStore(*builder, capacity, capacity_ptr);
