@@ -6,7 +6,11 @@
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-vec_01-66ac423.stdout",
+<<<<<<< HEAD
     "stdout_hash": "f6a1956c4ca8f970d78f8d6a84351f555d3fd0357dd896295c6d3fd8",
+=======
+    "stdout_hash": "85fda4398b81eb1906179b399c92a58b3db3969717f9b00695793edc",
+>>>>>>> 6e3f27b1d (Execute 'python run_tests.py -u' to update reference tests)
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

@@ -6,7 +6,11 @@
     "outfile": null,
     "outfile_hash": null,
     "stdout": "pass_loop_vectorise-vec_01-be9985e.stdout",
+<<<<<<< HEAD
     "stdout_hash": "7d7704f0646111583960133b1af90cb69d03dfe9091b07819018cb39",
+=======
+    "stdout_hash": "cc5064160e47adab7e09258cc7d30aae0c63505cb621abb4a376a91a",
+>>>>>>> 6e3f27b1d (Execute 'python run_tests.py -u' to update reference tests)
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
