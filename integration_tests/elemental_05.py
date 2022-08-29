@@ -84,7 +84,7 @@ def elemental_cosh_():
 
 def elemental_trig_identity():
     i: i32; j: i32; k: i32; l: i32
-    eps: f64 = 1e-6
+    eps: f64 = 1e-12
 
     arraynd: f64[10, 5, 2, 4] = empty((10, 5, 2, 4), dtype=float64)
 
