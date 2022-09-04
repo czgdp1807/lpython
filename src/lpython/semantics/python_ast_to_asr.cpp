@@ -1216,7 +1216,10 @@ public:
                     }
                     ASR::ttype_t *key_type = ast_expr_to_asr_type(loc, *t->m_elts[0]);
                     ASR::ttype_t *value_type = ast_expr_to_asr_type(loc, *t->m_elts[1]);
-                    return ASRUtils::TYPE(ASR::make_Dict_t(al, loc, key_type, value_type));
+		    if(ASR::is_a<ASR::Real_t>(*key_type) || ASR::is_a<ASR::Complex_t>(*key_type)) {
+			throw SemanticError("`dict` key type cannot be float/real", loc);
+		    }
+		    return ASRUtils::TYPE(ASR::make_Dict_t(al, loc, key_type, value_type));
                 } else {
                     throw SemanticError("`dict` annotation must have 2 elements: types of"
                         " both keys and values", loc);
