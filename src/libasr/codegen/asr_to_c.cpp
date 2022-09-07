@@ -322,6 +322,7 @@ R"(
 #include <stdio.h>
 #include <string.h>
 #include <lfortran_intrinsics.h>
+#include "../bindc_05b.h"
 
 #define ASSERT(cond)                                                           \
     {                                                                          \
