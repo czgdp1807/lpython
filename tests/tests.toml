@@ -728,6 +728,10 @@ filename = "errors/test_dict12.py"
 asr = true
 
 [[test]]
+filename = "errors/test_dict13.py"
+asr = true
+
+[[test]]
 filename = "errors/test_zero_division.py"
 asr = true
 
