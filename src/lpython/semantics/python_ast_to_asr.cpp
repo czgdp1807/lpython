@@ -3211,6 +3211,7 @@ private:
 
 public:
     ASR::asr_t *asr;
+    std::map<std::string, int64_t> labelname2id;
 
 
     BodyVisitor(Allocator &al, ASR::asr_t *unit, diag::Diagnostics &diagnostics,
@@ -3969,6 +3970,21 @@ public:
     void visit_Attribute(const AST::Attribute_t &x) {
         if (AST::is_a<AST::Name_t>(*x.m_value)) {
             std::string value = AST::down_cast<AST::Name_t>(x.m_value)->m_id;
+            if( value == "goto" ) {
+                // Label name has to be converted into an ID
+                // Now each label must be mapped to a unique ID
+                // because ASR doesn't care about the label names
+                // it just cares about IDs. Now if we don't map
+                // label names to unique IDs then we won't be able
+                // to create backend code correctly.
+                // How to generate IDs? We have a generator for that.
+                ASRUtils::LabelGenerator* label_generator = ASRUtils::LabelGenerator::get_instance();
+                int id = label_generator->get_unique_id();
+                std::string labelname = std::string(x.m_attr);
+                label_generator->add_node_with_unique_label(labelname, id);
+                tmp = ASR::make_GoTo_t(al, x.base.base.loc, id);
+                return ;
+            }
             ASR::symbol_t *t = current_scope->resolve_symbol(value);
             if (!t) {
                 throw SemanticError("'" + value + "' is not defined in the scope",
@@ -4543,8 +4559,14 @@ public:
             return;
         }
         this->visit_expr(*x.m_value);
-        ASRUtils::EXPR(tmp);
-        tmp = nullptr;
+
+        // If tmp is a statement and not an expression
+        // never cast into expression using ASRUtils::EXPR
+        // Just ignore and exit the function naturally.
+        if( !ASR::is_a<ASR::stmt_t>(*tmp) ) {
+            ASRUtils::EXPR(tmp);
+            tmp = nullptr;
+        }
     }
 
 

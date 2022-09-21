@@ -1754,7 +1754,12 @@ class LabelGenerator {
 
         static LabelGenerator *label_generator;
         uint64_t unique_label;
+
+        // For other LCompilers
         std::map<ASR::asr_t*, uint64_t> node2label;
+
+        // For LPython
+        std::map<std::string, uint64_t> labelname2id;
 
         // Private constructor so that more than
         // one object cannot be created by calling the
@@ -1777,13 +1782,27 @@ class LabelGenerator {
             return unique_label;
         }
 
+        int get_unique_id() {
+            unique_label += 1;
+            return unique_label;
+        }
+
         void add_node_with_unique_label(ASR::asr_t* node, uint64_t label) {
             LFORTRAN_ASSERT( node2label.find(node) == node2label.end() );
             node2label[node] = label;
         }
 
+        void add_node_with_unique_label(std::string labelname, uint64_t id) {
+            LFORTRAN_ASSERT( labelname2id.find(labelname) == labelname2id.end() );
+            labelname2id[labelname] = id;
+        }
+
         bool verify(ASR::asr_t* node) {
             return node2label.find(node) != node2label.end();
+        }
+
+        bool verify(std::string labelname) {
+            return labelname2id.find(labelname) != labelname2id.end();
         }
 };
 
