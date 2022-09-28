@@ -1753,7 +1753,6 @@ class LabelGenerator {
     private:
 
         static LabelGenerator *label_generator;
-        uint64_t unique_label;
 
         // For other LCompilers
         std::map<ASR::asr_t*, uint64_t> node2label;
@@ -1770,16 +1769,26 @@ class LabelGenerator {
 
     public:
 
+        uint64_t unique_label;
+        int get_unique_label() {
+            unique_label += 1;
+            return unique_label;
+        }
+
+        int get_id_by_label(std::string label) {
+            if (labelname2id.find(label) == labelname2id.end() ){
+                int id = label_generator->get_unique_id();
+                labelname2id[label] = id ;
+                std::cout << " GOT ID = " + label_generator->get_unique_id() << std::endl;
+            }
+            return labelname2id[label];
+        }
+
         static LabelGenerator *get_instance() {
             if (!label_generator) {
                 label_generator = new LabelGenerator;
             }
             return label_generator;
-        }
-
-        int get_unique_label() {
-            unique_label += 1;
-            return unique_label;
         }
 
         int get_unique_id() {

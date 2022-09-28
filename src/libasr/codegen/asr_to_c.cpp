@@ -845,6 +845,28 @@ R"(
         src = "strlen(" + src + ")";
     }
 
+    void visit_GoTo(const ASR::GoTo_t &x) {
+        //seems like there is no data /? 
+        // this->visit_stmt(x.base);
+
+        // std::ostringstream sid;
+        // sid << x.m_target_id;
+
+        // std::cout << "In Goto = " << x.m_target_id <<std::endl ;
+        // std::string s << x.m_target_id;
+        src =  "label "  + std::to_string(x.m_target_id) ;
+    }
+
+    void visit_GoToTarget(const ASR::GoToTarget_t &x) {
+        //seems like there is no data /? 
+        // this->visit_stmt(x.base);
+        // std::cout << "In Goto = " + src;
+         std::cout << "In Goto Target = " << x.m_id <<std::endl ;
+
+        src =  "goto "  + std::to_string(x.m_id) ;
+
+        // src =  " goto " << x.m_target_id << std::endl;
+    }
 };
 
 Result<std::string> asr_to_c(Allocator &al, ASR::TranslationUnit_t &asr,

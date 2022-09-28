@@ -3212,6 +3212,7 @@ private:
 public:
     ASR::asr_t *asr;
     std::map<std::string, int64_t> labelname2id;
+     ASR::symbol_t* empty_block;
 
 
     BodyVisitor(Allocator &al, ASR::asr_t *unit, diag::Diagnostics &diagnostics,
@@ -3967,10 +3968,23 @@ public:
         }
     }
 
+ void set_empty_block(SymbolTable* scope, const Location& loc) {
+        std::string empty_block_name = scope->get_unique_name("~empty_block");
+        if( empty_block_name != "~empty_block" ) {
+            empty_block = scope->get_symbol("~empty_block");
+        } else {
+            SymbolTable* empty_symtab = al.make_new<SymbolTable>(scope);
+            empty_block = ASR::down_cast<ASR::symbol_t>(ASR::make_Block_t(al, loc,
+                                empty_symtab,
+                                s2c(al, empty_block_name), nullptr, 0));
+            scope->add_symbol(empty_block_name, empty_block);
+        }
+    }
+
     void visit_Attribute(const AST::Attribute_t &x) {
         if (AST::is_a<AST::Name_t>(*x.m_value)) {
             std::string value = AST::down_cast<AST::Name_t>(x.m_value)->m_id;
-            if( value == "goto" ) {
+            if( value == "label" ) {
                 // Label name has to be converted into an ID
                 // Now each label must be mapped to a unique ID
                 // because ASR doesn't care about the label names
@@ -3978,14 +3992,38 @@ public:
                 // label names to unique IDs then we won't be able
                 // to create backend code correctly.
                 // How to generate IDs? We have a generator for that.
-                ASRUtils::LabelGenerator* label_generator = ASRUtils::LabelGenerator::get_instance();
-                int id = label_generator->get_unique_id();
                 std::string labelname = std::string(x.m_attr);
-                label_generator->add_node_with_unique_label(labelname, id);
-                tmp = ASR::make_GoTo_t(al, x.base.base.loc, id);
+                // std::cout << "ATTRIB NAME = " + labelname <<std::endl;
+               ASRUtils::LabelGenerator* label_generator = ASRUtils::LabelGenerator::get_instance();
+               int id = label_generator->get_id_by_label(labelname);
+               std::cout << " ID IS ="   << id << std::endl;
+            //    tmp = ASR::make_GoToTarget_t(al, x.base.base.loc, id); ??
+                tmp = ASR::make_GoTo_t(al, x.base.base.loc, id);      //  #looks like i want to create goto label .
                 return ;
             }
+
+             if (value == "goto"){
+                 std::string labelname = std::string(x.m_attr);
+                // std::cout << "ATTRIB NAME = " +  std::string(x.m_attr) <<std::endl;
+                 ASRUtils::LabelGenerator* label_generator =ASRUtils::LabelGenerator::get_instance();
+                 int id = label_generator->get_id_by_label(labelname);
+                // int id = label_generator->get_unique_id();
+                // std::string labelname = std::string(x.m_attr);
+                // std::cout << "INSiDE NAME = " + labelname <<std::endl;
+                // label_generator->add_node_with_unique_label(labelname, id);
+
+                //why empty block ? Ondrej advise GoTo_target
+
+
+                // set_empty_block(current_scope, x.base.base.loc);
+                // tmp = ASR::make_BlockCall_t(al, x.base.base.loc, id,  empty_block);
+
+                 tmp = ASR::make_GoToTarget_t(al, x.base.base.loc, id);
+                return;
+            }
+
             ASR::symbol_t *t = current_scope->resolve_symbol(value);
+
             if (!t) {
                 throw SemanticError("'" + value + "' is not defined in the scope",
                     x.base.base.loc);
