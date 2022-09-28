@@ -1779,7 +1779,6 @@ class LabelGenerator {
             if (labelname2id.find(label) == labelname2id.end() ){
                 int id = label_generator->get_unique_id();
                 labelname2id[label] = id ;
-                std::cout << " GOT ID = " + label_generator->get_unique_id() << std::endl;
             }
             return labelname2id[label];
         }

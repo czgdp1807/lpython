@@ -2843,7 +2843,7 @@ public:
         bool current_procedure_interface = false;
         bool overload = false;
         bool vectorize = false, is_inline = false, is_static = false;
-
+        bool is_goto = false;
         Vec<ASR::ttype_t*> tps;
         tps.reserve(al, x.m_args.n_args);
         bool is_restriction = false;
@@ -2866,6 +2866,8 @@ public:
                         vectorize = true;
                     } else if (name == "restriction") {
                         is_restriction = true;
+                    } else if (name == "with_goto") {
+                        is_goto = true;
                     } else if (name == "inline") {
                         is_inline = true;
                     } else if (name == "static") {
@@ -3985,40 +3987,19 @@ public:
         if (AST::is_a<AST::Name_t>(*x.m_value)) {
             std::string value = AST::down_cast<AST::Name_t>(x.m_value)->m_id;
             if( value == "label" ) {
-                // Label name has to be converted into an ID
-                // Now each label must be mapped to a unique ID
-                // because ASR doesn't care about the label names
-                // it just cares about IDs. Now if we don't map
-                // label names to unique IDs then we won't be able
-                // to create backend code correctly.
-                // How to generate IDs? We have a generator for that.
                 std::string labelname = std::string(x.m_attr);
-                // std::cout << "ATTRIB NAME = " + labelname <<std::endl;
                ASRUtils::LabelGenerator* label_generator = ASRUtils::LabelGenerator::get_instance();
                int id = label_generator->get_id_by_label(labelname);
-               std::cout << " ID IS ="   << id << std::endl;
-            //    tmp = ASR::make_GoToTarget_t(al, x.base.base.loc, id); ??
-                tmp = ASR::make_GoTo_t(al, x.base.base.loc, id);      //  #looks like i want to create goto label .
+                tmp = ASR::make_GoTo_t(al, x.base.base.loc, id, labelname);
                 return ;
             }
 
              if (value == "goto"){
                  std::string labelname = std::string(x.m_attr);
-                // std::cout << "ATTRIB NAME = " +  std::string(x.m_attr) <<std::endl;
+
                  ASRUtils::LabelGenerator* label_generator =ASRUtils::LabelGenerator::get_instance();
                  int id = label_generator->get_id_by_label(labelname);
-                // int id = label_generator->get_unique_id();
-                // std::string labelname = std::string(x.m_attr);
-                // std::cout << "INSiDE NAME = " + labelname <<std::endl;
-                // label_generator->add_node_with_unique_label(labelname, id);
-
-                //why empty block ? Ondrej advise GoTo_target
-
-
-                // set_empty_block(current_scope, x.base.base.loc);
-                // tmp = ASR::make_BlockCall_t(al, x.base.base.loc, id,  empty_block);
-
-                 tmp = ASR::make_GoToTarget_t(al, x.base.base.loc, id);
+                 tmp = ASR::make_GoToTarget_t(al, x.base.base.loc, id, labelname);
                 return;
             }
 
