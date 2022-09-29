@@ -846,11 +846,12 @@ R"(
     }
 
     void visit_GoTo(const ASR::GoTo_t &x) {
-        src =  x.m_label + ":\n";
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        src =  indent + "goto " + std::string(x.m_name) + ";\n";
     }
 
     void visit_GoToTarget(const ASR::GoToTarget_t &x) {
-        src =  "goto "  + x.m_label + ";\n";
+        src = std::string(x.m_name) + ":\n";
     }
 };
 

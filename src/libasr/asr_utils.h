@@ -1739,7 +1739,8 @@ class ReplaceReturnWithGotoVisitor: public ASR::BaseStmtReplacer<ReplaceReturnWi
     }
 
     void replace_Return(ASR::Return_t* x) {
-        *current_stmt = ASRUtils::STMT(ASR::make_GoTo_t(al, x->base.base.loc, goto_label));
+        *current_stmt = ASRUtils::STMT(ASR::make_GoTo_t(al, x->base.base.loc, goto_label,
+                            s2c(al, "__" + std::to_string(goto_label))));
         has_replacement_happened = true;
     }
 
@@ -1753,12 +1754,9 @@ class LabelGenerator {
     private:
 
         static LabelGenerator *label_generator;
+        uint64_t unique_label;
 
-        // For other LCompilers
         std::map<ASR::asr_t*, uint64_t> node2label;
-
-        // For LPython
-        std::map<std::string, uint64_t> labelname2id;
 
         // Private constructor so that more than
         // one object cannot be created by calling the
@@ -1769,20 +1767,6 @@ class LabelGenerator {
 
     public:
 
-        uint64_t unique_label;
-        int get_unique_label() {
-            unique_label += 1;
-            return unique_label;
-        }
-
-        int get_id_by_label(std::string label) {
-            if (labelname2id.find(label) == labelname2id.end() ){
-                int id = label_generator->get_unique_id();
-                labelname2id[label] = id ;
-            }
-            return labelname2id[label];
-        }
-
         static LabelGenerator *get_instance() {
             if (!label_generator) {
                 label_generator = new LabelGenerator;
@@ -1790,7 +1774,7 @@ class LabelGenerator {
             return label_generator;
         }
 
-        int get_unique_id() {
+        int get_unique_label() {
             unique_label += 1;
             return unique_label;
         }
@@ -1800,17 +1784,8 @@ class LabelGenerator {
             node2label[node] = label;
         }
 
-        void add_node_with_unique_label(std::string labelname, uint64_t id) {
-            LFORTRAN_ASSERT( labelname2id.find(labelname) == labelname2id.end() );
-            labelname2id[labelname] = id;
-        }
-
         bool verify(ASR::asr_t* node) {
             return node2label.find(node) != node2label.end();
-        }
-
-        bool verify(std::string labelname) {
-            return labelname2id.find(labelname) != labelname2id.end();
         }
 };
 

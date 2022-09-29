@@ -1,6 +1,7 @@
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <set>
 #include <memory>
 #include <string>
 #include <cmath>
@@ -2843,7 +2844,6 @@ public:
         bool current_procedure_interface = false;
         bool overload = false;
         bool vectorize = false, is_inline = false, is_static = false;
-        bool is_goto = false;
         Vec<ASR::ttype_t*> tps;
         tps.reserve(al, x.m_args.n_args);
         bool is_restriction = false;
@@ -2867,7 +2867,7 @@ public:
                     } else if (name == "restriction") {
                         is_restriction = true;
                     } else if (name == "with_goto") {
-                        is_goto = true;
+                        // TODO: Use goto attribute in function?
                     } else if (name == "inline") {
                         is_inline = true;
                     } else if (name == "static") {
@@ -3213,13 +3213,14 @@ private:
 
 public:
     ASR::asr_t *asr;
-    std::map<std::string, int64_t> labelname2id;
-     ASR::symbol_t* empty_block;
+    std::map<std::string, std::pair<int64_t, bool>> goto_name2id;
+    int64_t gotoids;
 
 
     BodyVisitor(Allocator &al, ASR::asr_t *unit, diag::Diagnostics &diagnostics,
          bool main_module, std::map<int, ASR::symbol_t*> &ast_overload)
-         : CommonVisitor(al, nullptr, diagnostics, main_module, ast_overload, ""), asr{unit}
+         : CommonVisitor(al, nullptr, diagnostics, main_module, ast_overload, ""), asr{unit},
+         gotoids{0}
          {}
 
     // Transforms statements to a list of ASR statements
@@ -3304,6 +3305,8 @@ public:
     }
 
     void visit_FunctionDef(const AST::FunctionDef_t &x) {
+        goto_name2id.clear();
+        gotoids = 0;
         SymbolTable *old_scope = current_scope;
         ASR::symbol_t *t = current_scope->get_symbol(x.m_name);
         if (ASR::is_a<ASR::Function_t>(*t)) {
@@ -3324,6 +3327,14 @@ public:
         }
         current_scope = old_scope;
         tmp = nullptr;
+
+        for( auto itr: goto_name2id ) {
+            if( !itr.second.second ) {
+                throw SemanticError("Label " + itr.first + " is not defined in "
+                                    + std::string(x.m_name),
+                                    x.base.base.loc);
+            }
+        }
     }
 
     void visit_Import(const AST::Import_t &/*x*/) {
@@ -3970,37 +3981,31 @@ public:
         }
     }
 
- void set_empty_block(SymbolTable* scope, const Location& loc) {
-        std::string empty_block_name = scope->get_unique_name("~empty_block");
-        if( empty_block_name != "~empty_block" ) {
-            empty_block = scope->get_symbol("~empty_block");
-        } else {
-            SymbolTable* empty_symtab = al.make_new<SymbolTable>(scope);
-            empty_block = ASR::down_cast<ASR::symbol_t>(ASR::make_Block_t(al, loc,
-                                empty_symtab,
-                                s2c(al, empty_block_name), nullptr, 0));
-            scope->add_symbol(empty_block_name, empty_block);
-        }
-    }
-
     void visit_Attribute(const AST::Attribute_t &x) {
         if (AST::is_a<AST::Name_t>(*x.m_value)) {
             std::string value = AST::down_cast<AST::Name_t>(x.m_value)->m_id;
             if( value == "label" ) {
-                std::string labelname = std::string(x.m_attr);
-               ASRUtils::LabelGenerator* label_generator = ASRUtils::LabelGenerator::get_instance();
-               int id = label_generator->get_id_by_label(labelname);
-                tmp = ASR::make_GoTo_t(al, x.base.base.loc, id, labelname);
+                std::string labelname = x.m_attr;
+                if( goto_name2id.find(labelname) == goto_name2id.end() ) {
+                    goto_name2id[labelname] = std::make_pair(gotoids, true);
+                    gotoids += 1;
+                } else if( !goto_name2id[labelname].second ) {
+                    goto_name2id[labelname] = std::make_pair(goto_name2id[labelname].first, true);
+                }
+                int id = goto_name2id[labelname].first;
+                tmp = ASR::make_GoToTarget_t(al, x.base.base.loc, id, x.m_attr);
                 return ;
             }
 
              if (value == "goto"){
-                 std::string labelname = std::string(x.m_attr);
-
-                 ASRUtils::LabelGenerator* label_generator =ASRUtils::LabelGenerator::get_instance();
-                 int id = label_generator->get_id_by_label(labelname);
-                 tmp = ASR::make_GoToTarget_t(al, x.base.base.loc, id, labelname);
-                return;
+                std::string labelname = std::string(x.m_attr);
+                if( goto_name2id.find(labelname) == goto_name2id.end() ) {
+                    goto_name2id[labelname] = std::make_pair(gotoids, false);
+                    gotoids += 1;
+                }
+                int id = goto_name2id[labelname].first;
+                tmp = ASR::make_GoTo_t(al, x.base.base.loc, id, x.m_attr);
+                return ;
             }
 
             ASR::symbol_t *t = current_scope->resolve_symbol(value);

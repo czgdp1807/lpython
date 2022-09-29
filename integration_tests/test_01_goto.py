@@ -1,14 +1,17 @@
-# from goto import with_goto #TODO: need to be supported for cpython integration_tests
+from ltypes import with_goto, goto, label, i32
 
 @with_goto
-def func() -> i16:
-    i:i16
+def f() -> i32:
+    i:i32
     for i in range(10):
-        goto .end
-        i = 10
+        if i == 5:
+            goto .end
 
     label .end
-    assert i == 0
+    assert i == 5
     return i
 
-func()
+def test_goto():
+    print(f())
+
+test_goto()
