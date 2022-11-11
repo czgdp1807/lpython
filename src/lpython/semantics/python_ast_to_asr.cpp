@@ -3160,6 +3160,10 @@ public:
         tmp = tmp0;
     }
 
+    void visit_For(const AST::For_t& /*x*/) {
+
+    }
+
     void visit_FunctionDef(const AST::FunctionDef_t &x) {
         dependencies.clear();
         SymbolTable *parent_scope = current_scope;
