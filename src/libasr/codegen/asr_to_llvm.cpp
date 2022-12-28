@@ -6024,8 +6024,20 @@ public:
                     if( ASR::is_a<ASR::ArrayItem_t>(*x.m_args[i].m_value) ||
                         ASR::is_a<ASR::StructInstanceMember_t>(*x.m_args[i].m_value) ||
                         (ASR::is_a<ASR::CPtr_t>(*arg_type) &&
-                            ASR::is_a<ASR::StructInstanceMember_t>(*x.m_args[i].m_value)) ) {
-                        tmp = LLVM::CreateLoad(*builder, tmp);
+                         ASR::is_a<ASR::StructInstanceMember_t>(*x.m_args[i].m_value)) ) {
+                        if( ASR::is_a<ASR::StructInstanceMember_t>(*x.m_args[i].m_value) &&
+                            ASRUtils::is_array(arg_type) ) {
+                            ASR::dimension_t* arg_m_dims = nullptr;
+                            size_t n_dims = ASRUtils::extract_dimensions_from_ttype(arg_type, arg_m_dims);
+                            if( !(ASRUtils::is_fixed_size_array(arg_m_dims, n_dims) &&
+                                  ASRUtils::expr_abi(x.m_args[i].m_value) == ASR::abiType::BindC) ) {
+                                tmp = LLVM::CreateLoad(*builder, arr_descr->get_pointer_to_data(tmp));
+                            } else {
+                                tmp = LLVM::CreateLoad(*builder, tmp);
+                            }
+                        } else {
+                            tmp = LLVM::CreateLoad(*builder, tmp);
+                        }
                     }
                 }
                 llvm::Value *value = tmp;

@@ -1,4 +1,4 @@
-from ltypes import i8, dataclass, i32, f32, c32, f64, i16, i64, c64, ccallable, packed
+from ltypes import i8, dataclass, i32, f32, c32, f64, i16, i64, c64, ccallable, packed, ccall
 from numpy import empty, int8, int16, int32, int64, float32, complex64, complex128, float64
 from copy import deepcopy
 
@@ -26,6 +26,10 @@ class buffer_struct_clink:
     buffer5: i16[32]
     buffer6: i64[32]
     buffer7: c64[32]
+
+@ccall
+def sum_buffer_i16(arr: i16[:], size: i32) -> i16:
+    pass
 
 def f():
     i: i32
@@ -99,5 +103,8 @@ def f():
         assert buffer_clink_.buffer5[i] - buffer_.buffer5[i] == i16(1)
         assert buffer_clink_.buffer6[i] - buffer_.buffer6[i] == i64(1)
         assert buffer_clink_.buffer7[i] - buffer_.buffer7[i] == c64(1)
+
+    print(sum_buffer_i16(buffer_.buffer5, 32))
+    assert sum_buffer_i16(buffer_clink_.buffer5, 32) == i16(880)
 
 f()
