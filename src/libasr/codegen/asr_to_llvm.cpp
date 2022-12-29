@@ -532,20 +532,18 @@ public:
             llvm::Value* end = tmp;
             llvm_dims.push_back(std::make_pair(start, end));
         }
-        // if( is_data_only ) {
-        //     // llvm::Value* llvm_size = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
-        //     llvm::Value* const_1 = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
-        //     llvm::Value* prod = const_1;
-        //     for( int r = 0; r < n_dims; r++ ) {
-        //         llvm::Value* dim_size = llvm_dims[r].second;
-        //         prod = builder->CreateMul(prod, dim_size);
-        //     }
-        //     llvm::Value* arr_first = builder->CreateAlloca(llvm_data_type, prod);
-        //     builder->CreateStore(arr_first, arr);
-        // } else {
-        //     arr_descr->fill_array_details(arr, llvm_data_type, n_dims, llvm_dims);
-        // }
-        if( !is_data_only ) {
+        if( is_data_only ) {
+            if( !ASRUtils::is_fixed_size_array(m_dims, n_dims) ) {
+                llvm::Value* const_1 = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
+                llvm::Value* prod = const_1;
+                for( int r = 0; r < n_dims; r++ ) {
+                    llvm::Value* dim_size = llvm_dims[r].second;
+                    prod = builder->CreateMul(prod, dim_size);
+                }
+                llvm::Value* arr_first = builder->CreateAlloca(llvm_data_type, prod);
+                builder->CreateStore(arr_first, arr);
+            }
+        } else {
             arr_descr->fill_array_details(arr, llvm_data_type, n_dims, llvm_dims);
         }
     }
@@ -733,7 +731,7 @@ public:
                 dertype2parent[der_type_name] = std::string(par_der_type->m_name);
                 member_idx += 1;
             }
-            const std::map<std::string, ASR::symbol_t*>& scope = der_type->m_symtab->get_scope();
+
             for( size_t i = 0; i < der_type->n_members; i++ ) {
                 std::string member_name = der_type->m_members[i];
                 ASR::Variable_t* member = ASR::down_cast<ASR::Variable_t>(der_type->m_symtab->get_symbol(member_name));
