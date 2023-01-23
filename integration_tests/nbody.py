@@ -1,6 +1,5 @@
 from ltypes import f32, i32, f64, ccall, TypeVar
-from numpy import zeros_like, empty, float32
-from math import sqrt
+from numpy import zeros_like, empty, float32, sqrt
 
 n: i32
 n = TypeVar("n")
@@ -30,7 +29,7 @@ def lpython_nbody(positions: f32[:, :], weights: f32[:], n: i32) -> f32[n, 2]:
             sqr_dist = rx * rx + ry * ry + eps_2
             sixth_dist = sqr_dist * sqr_dist * sqr_dist
             # QUESTION: Should we define sqrt for f32 types?
-            inv_dist_cube = f32(1.0) / f32(sqrt(f64(sixth_dist)))
+            inv_dist_cube = f32(1.0) / f32(sqrt(sixth_dist))
             s = weights[j] * inv_dist_cube
             ax += s * rx
             ay += s * ry
@@ -43,7 +42,7 @@ def check_results(accelerations: f32[:, :], n: i32) -> f32:
     l2_norm: f32 = f32(0.0)
     for i in range(n):
         assert accelerations[i, 0] == accelerations[i, 1]
-        l2_norm += f32(sqrt(f64(accelerations[i, 0]**f32(2.0) + accelerations[i, 1]**f32(2.0))))
+        l2_norm += f32(sqrt(accelerations[i, 0]**f32(2.0) + accelerations[i, 1]**f32(2.0)))
     return l2_norm
 
 def run_lpython_nbody(n: i32):

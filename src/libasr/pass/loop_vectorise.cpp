@@ -129,9 +129,17 @@ public:
         ASR::expr_t* loop_start = x.m_head.m_start;
         ASR::expr_t* loop_end = x.m_head.m_end;
         ASR::expr_t* loop_inc = x.m_head.m_increment;
-        ASR::expr_t* loop_start_value = ASRUtils::expr_value(loop_start);
-        ASR::expr_t* loop_end_value = ASRUtils::expr_value(loop_end);
-        ASR::expr_t* loop_inc_value = ASRUtils::expr_value(loop_inc);
+        ASR::expr_t *loop_start_value = nullptr, *loop_end_value = nullptr;
+        ASR::expr_t *loop_inc_value = nullptr;
+        if( loop_start ) {
+            loop_start_value = ASRUtils::expr_value(loop_start);
+        }
+        if( loop_end ) {
+            loop_end_value = ASRUtils::expr_value(loop_end);
+        }
+        if( loop_inc ) {
+            loop_inc_value = ASRUtils::expr_value(loop_inc);
+        }
         if( !ASRUtils::is_value_constant(loop_start_value) ||
             !ASRUtils::is_value_constant(loop_end_value) ||
             !ASRUtils::is_value_constant(loop_inc_value) ) {
