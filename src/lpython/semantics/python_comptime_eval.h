@@ -18,14 +18,14 @@
 namespace LCompilers::LPython {
 
 struct ProceduresDatabase {
-    std::map<std::string, std::set<std::string>> to_be_ignored;
+    std::map<std::string, std::set<std::string> > to_be_ignored;
 
     ProceduresDatabase() {
         to_be_ignored = {{"numpy", {"empty", "int64", "int32",
                                     "float32", "float64",
                                     "reshape", "array", "int16",
                                     "complex64", "complex128",
-                                    "int8"}},
+                                    "int8", "zeros_like"}},
                          {"enum", {"Enum"}}
                         };
     }
